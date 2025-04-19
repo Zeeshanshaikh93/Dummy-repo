@@ -1,97 +1,127 @@
-# Spring-Petclinic
+# Spring PetClinic Deployment on Ubuntu 24.04
 
-* This depicts the manual approach of SPC in ubuntu-24.04 using t2.medium as a vcpu
-* After creating the server clone the git repo of SPC as given below
+This guide demonstrates the manual setup and Docker-based deployment of the Spring PetClinic (SPC) application on an Ubuntu 24.04 server (t2.medium instance).
+
+---
+
+## Manual Setup
+
+### 1. Clone the Spring PetClinic Repository
 
 ```bash
 git clone https://github.com/spring-projects/spring-petclinic.git
 cd spring-petclinic
 ```
 
-* Then download Java -17
+### 2. Install Java 17
 
 ```bash
 sudo apt update 
 sudo apt install openjdk-17-jdk
 ```
 
-* Then download the maven
+### 3. Install Maven
 
 ```bash
 wget https://dlcdn.apache.org/maven/maven-3/3.9.9/binaries/apache-maven-3.9.9-bin.tar.gz
 tar xvzf apache-maven-3.9.9-bin.tar.gz
-mkdir /opt/maven
+sudo mkdir /opt/maven
 sudo mv apache-maven-3.9.9 /opt/maven
 ```
 
-* Then copy this path to vi editor to setup the maven permission, makesure to keep the colon ":" after the available paths are shown,
+### 4. Set Up Maven Environment Variables
+
+Add Maven to the system `PATH`. Open the environment configuration file:
 
 ```bash
-:/opt/maven/apache-maven-3.9.9/bin/
+sudo vi /etc/environment
 ```
 
-* Then exit and re-login, and then check the version
+Append the Maven binary path:
 
-```bash  
-"mvn --version"
+```
+:/opt/maven/apache-maven-3.9.9/bin
 ```
 
+Save and exit. Then log out and log back in for the changes to take effect.
 
-* Now "cd spring-petclinic" & apply the below command
+### 5. Verify Maven Installation
 
 ```bash
+mvn --version
+```
+
+### 6. Build the Spring PetClinic Application
+
+Navigate to the project directory and build the application:
+
+```bash
+cd spring-petclinic
 mvn clean package
 ```
 
-* After building of the Spring-petclinic Project, goto this folder "cd spring-petclinic/target" and then apply this command
-  
+### 7. Run the Application
+
+Navigate to the `target` directory and run the JAR file:
+
 ```bash
+cd target
 java -jar spring-petclinic-3.4.0-SNAPSHOT.jar
 ```
 
-* At the end access your spring-petclinic from the browser
+### 8. Access the Application in Browser
+
+Visit the application using your EC2 public IP:
 
 ```bash
-http://your<publicip>:8080
+http://<your-ec2-public-ip>:8080
 ```
 
-![alt text](images/image.png)
+> **Note:** Ensure that the EC2 instance has inbound rules configured to allow HTTP (port 8080) and SSH access.
 
-***Note: Make sure that in your ubuntu machine security inbound/outbound rules are open for HTTP & SSH***
+![Spring PetClinic Manual](images/image.png)
 
-## Now using Dockerfile approach
+---
 
-* Take ubuntu-24.04, install docker
+# Docker-Based Deployment
+
+### 1. Install Docker on Ubuntu 24.04
 
 ```bash
 curl -fsSL https://get.docker.com -o install-docker.sh
 sh install-docker.sh
 ```
 
-* Then set the permissions for docker
+### 2. Add User to Docker Group
 
 ```bash
 sudo usermod -aG docker ubuntu
 ```
 
-* exit and re-login
+Log out and log back in for the changes to take effect.
 
-* Then, fork Spring-petclinic repository into your github account
-* It will then appear in your repositories list as a fork, showing its origin as "forked from spring-projects/spring-petclinic" as the example given below
+### 3. Fork and Clone the Repository
+
+Fork the official Spring PetClinic repository into your GitHub account. Then clone your forked repository into your local folder for writing dockerfile:
 
 ```bash
 git clone https://github.com/Zeeshanshaikh93/spring-petclinic.git
+cd spring-petclinic
+git pull
 ```
 
-* Again, clone your forked repository into your local folder and then write a dockerfile, I'm using Multistage dockerfile for making docker    images cleaner, smaller, and more secure.
-* The below is my dockerfile
+### 4. Create a Multistage Dockerfile
 
-```bash
+Here's an optimized multistage Dockerfile for efficient builds:
+
+```dockerfile
+# Build Stage
 FROM maven:3.9-eclipse-temurin-17 AS builder
 COPY . /spc
 WORKDIR /spc
 RUN mvn package -DskipTests
 
+# Runtime Stage
 FROM eclipse-temurin:17-jre AS runner
 WORKDIR /app
 COPY --from=builder /spc/target/spring-petclinic-3.4.0-SNAPSHOT.jar spring-petclinic.jar
@@ -99,24 +129,29 @@ EXPOSE 8080
 CMD ["java", "-jar", "spring-petclinic.jar"]
 ```
 
-* Then goto your ubuntu server, clone the forked repository, make sure to fetch the updated details using command "git pull" and then follow the below commands
+### 5. Build and Run the Docker Image
 
 ```bash
-docker image build -t spc:1.0 .
-```
-
-```bash
+docker build -t spc:1.0 .
 docker run -d -p 8080:8080 spc:1.0
 ```
 
+Check the running container:
+
 ```bash
-docker ps / docker ps -a
+docker ps
 ```
 
-* At the end access your spring-petclinic from the browser
+### 6. Access the Application in Browser
+
+Open your browser and navigate to:
 
 ```bash
 http://<your-ec2-public-ip>:8080
 ```
 
-![alt text](images/image01.png)
+![Spring PetClinic Docker](images/image01.png)
+
+> **Note:** Confirm that your EC2 instance's security group allows inbound traffic on port 8080.
+
+---
