@@ -43,13 +43,13 @@ sudo mv apache-maven-3.9.9 /opt/maven
 mvn clean package
 ```
 
-* After building the SPC Project, goto this folder "cd spring-petclinic/target" and then apply this command
+* After building of the Spring-petclinic Project, goto this folder "cd spring-petclinic/target" and then apply this command
   
 ```bash
 java -jar spring-petclinic-3.4.0-SNAPSHOT.jar
 ```
 
-* After this access with your public ip address
+* At the end access your spring-petclinic from the browser
 
 ```bash
 http://your<publicip>:8080
@@ -76,14 +76,14 @@ sudo usermod -aG docker ubuntu
 
 * exit and re-login
 
-* After this fork the Spring-petclinic repository into your github account
-* like this it will be shown
+* Then, fork Spring-petclinic repository into your github account
+* It will then appear in your repositories list as a fork, showing its origin as "forked from spring-projects/spring-petclinic" as the example given below
 
 ```bash
 git clone https://github.com/Zeeshanshaikh93/spring-petclinic.git
 ```
 
-* After this clone your forked repository into your local folder and then write a dockerfile, I'm using Multistage dockerfile for making docker    images cleaner, smaller, and more secure.
+* Again, clone your forked repository into your local folder and then write a dockerfile, I'm using Multistage dockerfile for making docker    images cleaner, smaller, and more secure.
 * The below is my dockerfile
 
 ```bash
@@ -99,7 +99,7 @@ EXPOSE 8080
 CMD ["java", "-jar", "spring-petclinic.jar"]
 ```
 
-* Then goto your ubuntu server again clone the forked repository, make sure to fetch the updated details using command "git pull" and then follow the below commands
+* Then goto your ubuntu server, clone the forked repository, make sure to fetch the updated details using command "git pull" and then follow the below commands
 
 ```bash
 docker image build -t spc:1.0 .
