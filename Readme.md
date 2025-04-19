@@ -22,12 +22,20 @@ wget https://dlcdn.apache.org/maven/maven-3/3.9.9/binaries/apache-maven-3.9.9-bi
 tar xvzf apache-maven-3.9.9-bin.tar.gz
 mkdir /opt/maven
 sudo mv apache-maven-3.9.9 /opt/maven
-Then copy this path to vi editor to setup the maven permission, makesure to keep the colon ":" after the available paths are shown, 
-":/opt/maven/apache-maven-3.9.9/bin/"
-Then exit and relogin
-And then check the version
+```
+
+* Then copy this path to vi editor to setup the maven permission, makesure to keep the colon ":" after the available paths are shown,
+
+```bash
+:/opt/maven/apache-maven-3.9.9/bin/
+```
+
+* Then exit and re-login, and then check the version
+
+```bash  
 "mvn --version"
 ```
+
 
 * Now "cd spring-petclinic" & apply the below command
 
